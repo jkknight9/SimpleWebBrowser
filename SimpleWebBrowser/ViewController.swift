@@ -13,7 +13,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     
     var webview: WKWebView!
     var progressView: UIProgressView!
-    var websites = ["apple.com", "hackingwithswift.com"]
+    var websites = ["apple.com", "hackingwithswift.com", "onewheel.com"]
     
     override func loadView() {
         webview = WKWebView()
@@ -28,12 +28,13 @@ class ViewController: UIViewController, WKNavigationDelegate {
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webview, action: #selector(webview.reload))
-        
+        let backButton = UIBarButtonItem(title: "<", style: .plain, target: webview, action: #selector(webview.goBack))
+        let forwardButton = UIBarButtonItem(title: ">", style: .plain, target: webview, action: #selector(webview.goForward))
         progressView = UIProgressView(progressViewStyle: .default)
         progressView.sizeToFit()
         
         let progressButton = UIBarButtonItem(customView: progressView)
-        toolbarItems = [progressButton,spacer, refresh]
+        toolbarItems = [backButton, forwardButton,spacer, progressButton,spacer, refresh]
         navigationController?.isToolbarHidden = false
         
         webview.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
@@ -70,7 +71,17 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }
     }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        <#code#>
+        let url = navigationAction.request.url
+        
+        if let host = url?.host {
+            for website in websites {
+                if host.contains(website) {
+                    decisionHandler(.allow)
+                    return
+                }
+            }
+        }
+        decisionHandler(.cancel)
     }
 }
 
